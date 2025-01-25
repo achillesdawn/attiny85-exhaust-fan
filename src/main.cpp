@@ -1,6 +1,6 @@
-#include <Arduino.h>
 #include "adc.h"
 #include "pwm.h"
+#include <Arduino.h>
 
 void setup() {
     setup_pwm();
@@ -9,9 +9,9 @@ void setup() {
 
 void loop() {
     while (true) {
-        PORTB |= (1 << PORTB1);
-        delay(500);
-        PORTB &= ~(1 << PORTB1);
-        delay(500);
+        for (uint8_t i = 0; i < 255; i++) {
+            OCR0A = i;
+            delay(20);
+        }
     }
 }
