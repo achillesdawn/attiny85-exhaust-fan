@@ -1,11 +1,17 @@
 #include <Arduino.h>
 #include "adc.h"
+#include "pwm.h"
 
-
-void setup() {}
-
-void loop() {
-    // put your main code here, to run repeatedly:
+void setup() {
+    setup_pwm();
+    DDRB |= (1 << DDB1);
 }
 
-ISR(ADC_vect) {  }
+void loop() {
+    while (true) {
+        PORTB |= (1 << PORTB1);
+        delay(500);
+        PORTB &= ~(1 << PORTB1);
+        delay(500);
+    }
+}

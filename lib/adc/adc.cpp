@@ -1,6 +1,10 @@
 #include "adc.h"
 #include <Arduino.h>
 
+volatile uint16_t adc_value;
+
+// ISR(ADC_vect) { adc_value = ADCL | (ADCH << 8); }
+
 void Adc::initADC() {
     /* this function initialises the ADC
 
@@ -47,7 +51,9 @@ void Adc::initADC() {
              (0 << ADPS0);  // set prescaler to 64, bit 0
 };
 
-void Adc::voltage_reference_vcc() { ADMUX |= (0 << REFS0) | (0 << REFS1); };
+void Adc::voltage_reference_vcc() {
+    ADMUX |= (0 << REFS2) | (0 << REFS1) | (0 << REFS0);
+};
 
 void Adc::voltage_reference_PB0() {
     ADMUX |= (0 << REFS2) | (0 << REFS1) | (1 << REFS0);
@@ -81,8 +87,19 @@ void Adc::set_result_shifted(bool left) {
 }
 
 void Adc::enable_adc() {
-    ADCSRA = (1 << ADEN); // Enable ADC
+    ADCSRA |= (1 << ADEN); // Enable ADC
 };
+
+void Adc::clock_prescale() {
+    ADCSRA |= (0 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+}
+
+void Adc::start() { ADCSRA |= (1 << ADSC); }
+
+void Adc::wait_for_conversion() {
+    while (ADCSRA & (1 << ADSC) == 1) {
+    }
+}
 
 void Adc::set_adc_single_ended_input(uint8_t pin_number) {
     switch (pin_number) {
@@ -109,3 +126,5 @@ void Adc::set_adc_single_ended_input(uint8_t pin_number) {
         break;
     }
 }
+
+void Adc::read_adc() { adc_value = ADCL | (ADCH << 8); }

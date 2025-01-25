@@ -20,4 +20,12 @@ class Adc {
     void enable_adc();
 
     void set_adc_single_ended_input(uint8_t pin_number);
+
+    void read_adc();
+
+    void clock_prescale();
+
+    void start();
+
+    void wait_for_conversion();
 };
