@@ -1,5 +1,5 @@
-#include <avr/pgmspace.h>
 #include "pwm.h"
+#include <avr/pgmspace.h>
 
 void set_pwm_mode(uint8_t mode) {
 
@@ -110,6 +110,83 @@ void set_pwm_timer_prescaling(uint8_t mode) {
     GTCCR &= ~(1 << TSM);
 }
 
+typedef enum {
+    T1_PRESCALE_STOPPED,
+    T1_PRESCALE_NONE,
+    T1_PRESCALE_DIV_2,
+    T1_PRESCALE_DIV_4,
+    T1_PRESCALE_DIV_8,
+    T1_PRESCALE_DIV_16,
+    T1_PRESCALE_DIV_32,
+    T1_PRESCALE_DIV_64,
+    T1_PRESCALE_DIV_128,
+    T1_PRESCALE_DIV_256,
+    T1_PRESCALE_DIV_512,
+    T1_PRESCALE_DIV_1024,
+    T1_PRESCALE_DIV_2048,
+    T1_PRESCALE_DIV_4096,
+    T1_PRESCALE_DIV_8192,
+    T1_PRESCALE_DIV_16384
+} PrescalerValue;
+
+void set_timer1_prescaling(PrescalerValue prescaler) {
+
+    switch (prescaler) {
+        {
+        case T1_PRESCALE_STOPPED:
+            TCCR1 |= (0 << CS13) | (0 << CS12) | (0 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_NONE:
+            TCCR1 |= (0 << CS13) | (0 << CS12) | (0 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_2:
+            TCCR1 |= (0 << CS13) | (0 << CS12) | (1 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_4:
+            TCCR1 |= (0 << CS13) | (0 << CS12) | (1 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_8:
+            TCCR1 |= (0 << CS13) | (1 << CS12) | (0 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_16:
+            TCCR1 |= (0 << CS13) | (1 << CS12) | (0 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_32:
+            TCCR1 |= (0 << CS13) | (1 << CS12) | (1 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_64:
+            TCCR1 |= (0 << CS13) | (1 << CS12) | (1 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_128:
+            TCCR1 |= (1 << CS13) | (0 << CS12) | (0 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_256:
+            TCCR1 |= (1 << CS13) | (0 << CS12) | (0 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_512:
+            TCCR1 |= (1 << CS13) | (0 << CS12) | (1 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_1024:
+            TCCR1 |= (1 << CS13) | (0 << CS12) | (1 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_2048:
+            TCCR1 |= (1 << CS13) | (1 << CS12) | (0 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_4096:
+            TCCR1 |= (1 << CS13) | (1 << CS12) | (0 << CS11) | (1 << CS10);
+            break;
+        case T1_PRESCALE_DIV_8192:
+            TCCR1 |= (1 << CS13) | (1 << CS12) | (1 << CS11) | (0 << CS10);
+            break;
+        case T1_PRESCALE_DIV_16384:
+            TCCR1 |= (1 << CS13) | (1 << CS12) | (1 << CS11) | (1 << CS10);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 inline void set_compare_output_mode_pwm_phase_correct() {
     // non inverted
     TCCR0A |= (1 << COM0A1) | (0 << COM0A0);
@@ -151,6 +228,5 @@ void setup_pwm_timer_1() {
     // timer one counts from 0 to OCR1C
     OCR1C = 255;
 
-    // prescale to 1024
-    TCCR1 |= (1 << CS13) | (0 << CS12) | (1 << CS11) | (1 << CS10);
+    set_timer1_prescaling(T1_PRESCALE_DIV_64);
 }
