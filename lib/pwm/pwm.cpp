@@ -1,4 +1,5 @@
-#include <Arduino.h>
+#include <avr/pgmspace.h>
+#include "pwm.h"
 
 void set_pwm_mode(uint8_t mode) {
 
@@ -59,6 +60,8 @@ void set_pwm_timer_prescaling(uint8_t mode) {
     // section 11.9.3 of datasheet page 79
     // Timer/Counter Control Register B
 
+    GTCCR |= (1 << TSM);
+
     switch (mode) {
     case 0:
         // no clock source / timer stopped
@@ -103,6 +106,8 @@ void set_pwm_timer_prescaling(uint8_t mode) {
     default:
         break;
     }
+
+    GTCCR &= ~(1 << TSM);
 }
 
 inline void set_compare_output_mode_pwm_phase_correct() {
@@ -119,7 +124,7 @@ inline void set_duty_output_compare_registry_a() {
     OCR0A = 128;
 }
 
-void setup_pwm() {
+void setup_pwm_timer_0() {
     // Port B Data Direction Register
     // DDRB sets direction of pins
 
@@ -127,7 +132,25 @@ void setup_pwm() {
     DDRB |= (1 << DDB0);
 
     set_pwm_mode(1);
-    set_pwm_timer_prescaling(5);
+    set_pwm_timer_prescaling(1);
     set_compare_output_mode_pwm_phase_correct();
     set_duty_output_compare_registry_a();
+}
+
+void setup_pwm_timer_1() {
+    // set direction of pin 0 as output
+    DDRB |= (1 << DDB1);
+
+    // PWM1A: Pulse Width Modulator A Enable
+    TCCR1 |= (1 << PWM1A);
+
+    // COM1A[1:0]: Comparator A Output Mode,
+    // OC1x cleared on compare match. Set when TCNT1 = $00.
+    TCCR1 |= (1 << COM1A1) | (0 << COM1A0);
+
+    // timer one counts from 0 to OCR1C
+    OCR1C = 255;
+
+    // prescale to 1024
+    TCCR1 |= (1 << CS13) | (0 << CS12) | (1 << CS11) | (1 << CS10);
 }
